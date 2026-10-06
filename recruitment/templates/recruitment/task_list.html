@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tareas - Talent Match</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background: #f5f6f8;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 16px;
+            border-radius: 6px;
+            background: #2563eb;
+            color: white;
+        }
+
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .filters form {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+
+        .filters label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        select {
+            padding: 9px;
+            min-width: 150px;
+        }
+
+        button {
+            border: 0;
+            cursor: pointer;
+        }
+
+        .task {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .task-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .meta {
+            color: #666;
+            margin: 8px 0;
+        }
+
+        .actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .actions a,
+        .actions button {
+            padding: 8px 12px;
+            border-radius: 5px;
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        .actions .complete {
+            background: #16a34a;
+            color: white;
+        }
+
+        .actions .delete {
+            background: #dc2626;
+            color: white;
+        }
+
+        .message {
+            background: #dcfce7;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .empty {
+            background: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px;
+        }
+
+        input[type="text"] {
+            padding: 9px;
+            min-width: 220px;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Tareas</h1>
+        <a class="button" href="{% url 'recruitment:task_create' %}">
+            + Nueva tarea
+        </a>
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="message">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+
+    <div class="filters">
+        <form method="get">
+            <div>
+                <label for="search">Buscar</label>
+                <input type="text" name="search" id="search" value="{{ search }}" placeholder="Título o descripción...">
+            </div>
+            <div>
+                <label for="status">Estado</label>
+                <select name="status" id="status">
+                    <option value="">Todos</option>
+                    {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="priority">Prioridad</label>
+                <select name="priority" id="priority">
+                    <option value="">Todas</option>
+                    {% for value, label in priority_choices %}
+                    <option value="{{ value }}" {% if priority_filter == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="task_type">Tipo</label>
+                <select name="task_type" id="task_type">
+                    <option value="">Todos</option>
+                    {% for value, label in task_type_choices %}
+                    <option value="{{ value }}" {% if task_type_filter == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button class="button" type="submit">
+                Filtrar
+            </button>
+
+            <a href="{% url 'recruitment:task_list' %}">
+                Limpiar filtros
+            </a>
+        </form>
+    </div>
+
+    {% if tasks %}
+
+    {% for task in tasks %}
+
+    <div class="task">
+
+        <div class="task-header">
+            <div>
+                <div class="task-title">
+                    {{ task.title }}
+                </div>
+
+                <div class="meta">
+                    {{ task.get_task_type_display }}
+                    ·
+                    {{ task.get_priority_display }}
+                    ·
+                    {{ task.get_status_display }}
+                </div>
+            </div>
+
+            <div>
+                {{ task.due_date|date:"d/m/Y H:i" }}
+            </div>
+        </div>
+
+        {% if task.description %}
+        <p>{{ task.description }}</p>
+        {% endif %}
+
+        <div class="actions">
+
+            <a href="{% url 'recruitment:task_detail' task.pk %}">
+                Ver
+            </a>
+
+            <a href="{% url 'recruitment:task_update' task.pk %}">
+                Editar
+            </a>
+
+            {% if task.status != "COMPLETED" %}
+            <form method="post" action="{% url 'recruitment:task_complete' task.pk %}">
+                {% csrf_token %}
+                <button class="complete" type="submit">
+                    Marcar completada
+                </button>
+            </form>
+            {% endif %}
+
+            <a class="delete" href="{% url 'recruitment:task_delete' task.pk %}">
+                Eliminar
+            </a>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+    {% else %}
+
+    <div class="empty">
+        <h2>No hay tareas</h2>
+        <p>Crea una nueva tarea para comenzar.</p>
+    </div>
+
+    {% endif %}
+
+</body>
+
+</html>

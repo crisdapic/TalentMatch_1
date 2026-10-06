@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminar tarea - Talent Match</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 80px auto;
+            padding: 0 20px;
+            background: #f5f6f8;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        button,
+        a {
+            padding: 10px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            border: 0;
+            cursor: pointer;
+        }
+
+        .delete {
+            background: #dc2626;
+            color: white;
+        }
+
+        .cancel {
+            background: #e5e7eb;
+            color: #111827;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <h1>Eliminar tarea</h1>
+
+    <p>
+        ¿Seguro que quieres eliminar la tarea
+        <strong>"{{ task.title }}"</strong>?
+    </p>
+
+    <p>Esta acción no se puede deshacer.</p>
+
+    <div class="actions">
+
+        <form method="post">
+            {% csrf_token %}
+
+            <button class="delete" type="submit">
+                Sí, eliminar
+            </button>
+        </form>
+
+        <a class="cancel"
+           href="{% url 'recruitment:task_detail' task.pk %}">
+            Cancelar
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

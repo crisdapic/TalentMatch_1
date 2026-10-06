@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ task.title }} - Talent Match</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background: #f5f6f8;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+        }
+
+        .row {
+            margin: 15px 0;
+        }
+
+        .label {
+            font-weight: bold;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .button {
+            padding: 10px 16px;
+            border-radius: 6px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+        }
+
+        .danger {
+            background: #dc2626;
+        }
+
+        .secondary {
+            background: #e5e7eb;
+            color: #111827;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <h1>{{ task.title }}</h1>
+
+    <div class="row">
+        <span class="label">Descripción:</span>
+        <p>{{ task.description|default:"Sin descripción." }}</p>
+    </div>
+
+    <div class="row">
+        <span class="label">Tipo:</span>
+        {{ task.get_task_type_display }}
+    </div>
+
+    <div class="row">
+        <span class="label">Prioridad:</span>
+        {{ task.get_priority_display }}
+    </div>
+
+    <div class="row">
+        <span class="label">Estado:</span>
+        {{ task.get_status_display }}
+    </div>
+
+    <div class="row">
+        <span class="label">Fecha límite:</span>
+        {{ task.due_date|date:"d/m/Y H:i" }}
+    </div>
+
+    <div class="row">
+        <span class="label">Creada:</span>
+        {{ task.created_at|date:"d/m/Y H:i" }}
+    </div>
+
+    {% if task.completed_at %}
+        <div class="row">
+            <span class="label">Completada:</span>
+            {{ task.completed_at|date:"d/m/Y H:i" }}
+        </div>
+    {% endif %}
+
+    <div class="actions">
+
+        <a class="button"
+           href="{% url 'recruitment:task_update' task.pk %}">
+            Editar
+        </a>
+
+        <a class="button danger"
+           href="{% url 'recruitment:task_delete' task.pk %}">
+            Eliminar
+        </a>
+
+        <a class="button secondary"
+           href="{% url 'recruitment:task_list' %}">
+            Volver
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>
